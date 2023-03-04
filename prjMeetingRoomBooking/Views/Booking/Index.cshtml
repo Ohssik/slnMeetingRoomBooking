@@ -1,0 +1,212 @@
+﻿@model prjMeetingRoomBooking.ViewModels.CBooking
+
+@{
+    ViewData["Title"] = "會議室預約系統";
+    Layout = "_Layout";
+}
+@section Styles{
+    <style>
+        .mb20 {
+            margin-bottom:20px;
+        }
+        
+        form input.inline {
+            width: 50%;
+            display: inline;
+        }
+
+        form select.inline {
+            width: 49%;
+            display: inline;
+        }
+
+        form label.inline {
+            display: inline;
+            font-weight: bold;
+        }
+        .row>div {           
+            margin: 30px auto;
+        }
+
+        .btnDiv {
+            display:flex;
+            flex-direction:row-reverse;
+            
+        }
+        .btn {
+            margin-left:10px;
+        }
+        .table{
+            margin:30px auto;
+        }
+
+        .txtTitle{
+            text-align:center;
+        }
+    </style>
+}
+
+<h3 class="txtTitle">新增會議室預約</h3>
+<hr />
+<div class="row">
+        <div class="col-md-8 col-xl-6">
+        <form asp-action="Index">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">                
+                <input asp-for="RoomId" class="form-control" type="text"/>                
+            </div>
+            <div class="form-group">
+                <label class="control-label">會議室</label>
+                <select class="form-control selectRoom mb20" ></select>                
+            </div>
+            <div class="form-group">
+                <label asp-for="Subject" class="control-label"></label>
+                    <input asp-for="Subject" class="form-control mb20" />
+                <span asp-validation-for="Subject" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BookingUserId" class="control-label"></label>
+                    <input asp-for="BookingUserId" class="form-control mb20" />
+                <span asp-validation-for="BookingUserId" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <div>
+                    <label asp-for="startDate" class="control-label inline"></label> / 
+                    <label asp-for="startT" class="control-label inline"></label>
+                </div>
+                <div>
+                    <input asp-for="startDate" class="form-control inline mb20" type="date" />
+                    <select asp-for="startT" class="form-control inline selectTime" >                                            
+                    </select>
+                </div>
+                    
+                <span asp-validation-for="startDate" class="text-danger"></span>                    
+                <span asp-validation-for="startT" class="text-danger"></span>
+                              
+            </div>
+            <div class="form-group">
+                    <div>
+                        <label asp-for="endDate" class="control-label inline"></label> /
+                        <label asp-for="endT" class="control-label inline"></label>
+                    </div>
+                    <div>
+                        <input asp-for="endDate" class="form-control inline mb20" type="date" />
+                        <select asp-for="endT" class="form-control inline selectTime">                          
+                        </select>
+                    </div>
+
+                    <span asp-validation-for="startDate" class="text-danger"></span>
+                    <span asp-validation-for="endT" class="text-danger"></span>
+            </div>
+           
+            <div class="form-group btnDiv">
+                <input type="submit" value="確認" class="btn btn-primary" />
+                <input type="reset" value="重設" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+        <table class="table" name="RoomManagers">
+            <thead>
+                <tr>
+                    <th scope="col">會議室</th>
+                    <th scope="col">管理人ID</th>
+                    <th scope="col">管理人姓名</th>
+                    <th scope="col">可容納人數</th>
+                </tr>
+            </thead>
+            <tbody>               
+            </tbody>
+        </table>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        $(function(){
+            //日期選單預設載入今天
+            let today=new Date();
+            let todayYear = today.getFullYear();
+            let todayMonth = (today.getMonth() + 1) < 10 ? `0${today.getMonth() + 1}` : today.getMonth() + 1;
+            let todayDate = today.getDate() < 10 ? `0${today.getDate()}` : today.getDate();            
+            $('input[name$=Date]').val(`${todayYear}-${todayMonth}-${todayDate}`);
+
+            //時間選單選項
+            $('.selectTime').append(`
+                        <option value=""></option>
+                        <option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option>
+                        <option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+            `);
+
+            //載入會議室選項
+            $.ajax({
+                url: `@Url.Content("~/Booking/getAllMeetingRoomsOp")`,
+                type:'post',
+                data:{},
+                dataType:'json',
+                success:function(result){
+                    //console.log(result);
+                    if (`${result}`.indexOf('error')==-1){       
+                        let docFrag=document.createDocumentFragment();
+                        $(docFrag).append(`<option></option>`);
+                        $(result).each(function(i,value){
+                            $(docFrag).append(`<option value=${value.roomName} data-rid=${value.roomId}>${value.roomName}</option>`);
+                        });
+                        $('.selectRoom').append(docFrag);
+                    }
+                }
+            });
+
+
+            $('.selectRoom').change(function(){
+                let roomId = $('.selectRoom>option:selected').data('rid');
+                $('[name=RoomId]').val(roomId);
+            });
+
+
+            //載入管理人表
+            $.ajax({
+                url: `@Url.Content("~/Booking/getAllRoomManagers")`,
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                success: function (result) {
+                    //console.log(result);
+                    if (`${result}`.indexOf('error') == -1) {
+                        let docFrag = document.createDocumentFragment();
+                        
+                        $(result).each(function (i, value) {
+                            $(docFrag).append(`<tr>
+                                                    <td>${value.roomName}</td>
+                                                    <td>${value.managerId}</td>
+                                                    <td>${value.managerName}</td>
+                                                    <td>${value.size}</td>
+                                                </tr>`);
+                        });
+                        $('[name="RoomManagers"]>tbody').append(docFrag);
+                    }
+                }
+            });
+        });
+    </script>
+}
