@@ -1,0 +1,200 @@
+﻿@model IEnumerable<prjMeetingRoomBooking.Models.TMeeingBooking>
+
+@{
+    ViewData["Title"] = "會議室預約/週查詢";
+    Layout = "_Layout";
+}
+
+@section Scripts {
+    <script>
+        $(function(){
+            let d = getUrlParameter('date');
+            
+            if (d == '' || d == undefined){
+                //$('thead>tr:first>th:not(#txtDate)')
+                d = (new Date()).getFullYear() + '-' + (new Date()).getMonth() + 1 + '-' + (new Date()).getDate();
+            }
+            
+            let weekdateArr = new Array();
+            $('thead>tr:first>th:not(#txtDate)').each(function (i, value) {
+                weekdateArr.push($(value).text());
+            });
+            //console.log(weekdateArr);
+
+            $.ajax({
+                url: `@Url.Content("~/Booking/getAllMeetingRoomsOp")`,
+                type: 'post',
+                data: {},
+                async:false,
+                dataType: 'json',
+                success: function (result) {
+                    //console.log(result);
+                    if (`${result}`.indexOf('error') == -1) {                        
+                        let docFrag = document.createDocumentFragment();                        
+                        $(result).each(function (i, value) {
+                            $(docFrag).append(`<tr data-rid=${value.roomId}>
+                                                    <td>${value.roomName}</td>
+                                                    <td data-date=${weekdateArr[0].trim()} ></td>
+                                                    <td data-date=${weekdateArr[0].trim()} ></td>
+                                                    <td data-date=${weekdateArr[1].trim()} ></td>
+                                                    <td data-date=${weekdateArr[1].trim()} ></td>
+                                                    <td data-date=${weekdateArr[2].trim()} ></td>
+                                                    <td data-date=${weekdateArr[2].trim()} ></td>
+                                                    <td data-date=${weekdateArr[3].trim()} ></td>
+                                                    <td data-date=${weekdateArr[3].trim()} ></td>
+                                                    <td data-date=${weekdateArr[4].trim()} ></td>
+                                                    <td data-date=${weekdateArr[4].trim()} ></td>
+                                                    <td data-date=${weekdateArr[5].trim()} ></td>
+                                                    <td data-date=${weekdateArr[5].trim()} ></td>
+                                                    <td data-date=${weekdateArr[6].trim()} ></td>
+                                                    <td data-date=${weekdateArr[6].trim()} ></td>
+                                                </tr>`);
+                        });
+                        $('tbody').append(docFrag);
+                        
+                        
+                    }
+                }
+            });
+
+            $.ajax({
+                url: `@Url.Content("~/Check/getThisWeekRecords")`,
+                type: 'post',
+                data: {                   
+                        data:'@ViewBag.Sun'                        
+                },
+                async: false,
+                dataType: 'json',
+                success: function (result) {
+                    //console.log(result);
+                    $(result).each(function(i,value){
+                        let getStHour = new Date(value.startTime).getHours();
+                        let st = (value.startTime.split('T'))[0];
+                        //let et = new Date(value.endTime);
+                        if (getStHour < 12) {
+                            $(`tr[data-rid=${value.roomId}]`).find(`td[data-date=${st}]`).eq(0).html(`<button class='btn btn-secondary' data-bid=${value.id}>${value.subject}</button>`);
+                        }else{
+                            $(`tr[data-rid=${value.roomId}]`).find(`td[data-date=${st}]`).eq(1).html(`<button class='btn btn-secondary' data-bid=${value.id}>${value.subject}</button>`);
+
+                        }
+                        
+                    });
+                }
+            });
+
+            $('table').on('click', '.btn-secondary',function(){
+                let id=$(this).data('bid');
+                location.assign(`@Url.Content("~/Booking/UpdateBooking")?id=${id}`);
+            });
+
+            //抓 url get 參數
+            function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+                return false;
+            }
+        });
+    </script>
+}
+@section Styles{
+    <style>
+        .btnDiv{
+            position:relative;
+            height: 50px;
+        }
+
+        .btnDiv>input{
+            position:absolute;            
+        }
+
+        .btnDiv > input:nth-child(1){
+            left:0;
+        }
+
+        .btnDiv > input:nth-child(2) {
+            right: 0;
+        }
+    </style>
+}
+<h3 class="txtTitle">會議室預約/週查詢</h3>
+<hr />
+<div class="btnDiv">
+        <input type="button" id="btnLastWeek" value="上一週" class="btn btn-success" />
+        <input type="button" id="btnNextWeek" value="下一週" class="btn btn-success" />
+</div>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            
+            <th id="txtDate">日期</th>
+            <th colspan="2">
+                @ViewBag.Sun
+                
+            </th>
+            <th colspan="2">
+                    @ViewBag.Mon
+                
+            </th>
+            <th colspan="2">
+                    @ViewBag.Tue
+               
+            </th>
+            <th colspan="2">
+                    @ViewBag.Wed
+                
+            </th>
+            <th colspan="2">
+                    @ViewBag.Thur
+               
+            </th>
+            <th colspan="2">
+                    @ViewBag.Fri
+               
+            </th>
+            <th colspan="2">
+                    @ViewBag.Sat
+               
+            </th>            
+        </tr>
+        <tr>
+            <th><span></span>週</th>
+            <th colspan="2">日</th>
+            <th colspan="2">一</th>
+            <th colspan="2">二</th>
+            <th colspan="2">三</th>
+            <th colspan="2">四</th>
+            <th colspan="2">五</th>
+            <th colspan="2">六</th>
+        </tr>
+        <tr>
+            <th>會議室</th>
+            <th>AM</th>
+            <th>PM</th>
+            <th>AM</th>
+            <th>PM</th>
+            <th>AM</th>
+            <th>PM</th>
+            <th>AM</th>
+            <th>PM</th>
+            <th>AM</th>
+            <th>PM</th>
+            <th>AM</th>
+            <th>PM</th>
+            <th>AM</th>
+            <th>PM</th>            
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
