@@ -8,19 +8,30 @@
 @section Scripts {
     <script>
         $(function(){
+            //取得日期字串
+            function getDateStr(date) {
+                let getY = date.getFullYear();
+                let getM = date.getMonth() + 1;
+                getM = getM < 10 ? `0${getM}` : getM;
+                let getD = date.getDate();
+                getD = getD < 10 ? `0${getD}` : getD;
+                return getY + '-' + getM + '-' + getD;
+            }
+
             let d = getUrlParameter('date');
-            
-            if (d == '' || d == undefined){
-                //$('thead>tr:first>th:not(#txtDate)')
-                d = (new Date()).getFullYear() + '-' + (new Date()).getMonth() + 1 + '-' + (new Date()).getDate();
+
+            if (d == '' || d == undefined) {               
+                d = getDateStr(new Date());
             }
             
+            //存取本週日期Array
             let weekdateArr = new Array();
             $('thead>tr:first>th:not(#txtDate)').each(function (i, value) {
                 weekdateArr.push($(value).text());
             });
             //console.log(weekdateArr);
 
+            //載入會議室
             $.ajax({
                 url: `@Url.Content("~/Booking/getAllMeetingRoomsOp")`,
                 type: 'post',
@@ -57,13 +68,17 @@
                 }
             });
 
+            //載入本週預約記錄
             $.ajax({
-                url: `@Url.Content("~/Check/getThisWeekRecords")`,
+                url: `@Url.Content("~/Check/getBookingRecords")`,
                 type: 'post',
                 data: {                   
-                        data:'@ViewBag.Sun'                        
+                        data:JSON.stringify({
+                            FirstDay:'@ViewBag.Sun',
+                            LastDay: '@ViewBag.Sat'
+                        })
                 },
-                async: false,
+                async: true,
                 dataType: 'json',
                 success: function (result) {
                     //console.log(result);
@@ -72,9 +87,9 @@
                         let st = (value.startTime.split('T'))[0];
                         //let et = new Date(value.endTime);
                         if (getStHour < 12) {
-                            $(`tr[data-rid=${value.roomId}]`).find(`td[data-date=${st}]`).eq(0).html(`<button class='btn btn-secondary' data-bid=${value.id}>${value.subject}</button>`);
+                            $(`tr[data-rid=${value.roomId}]`).find(`td[data-date=${st}]`).eq(0).append(`<button class='btn btn-secondary' data-bid=${value.id}>${value.subject}</button>`);
                         }else{
-                            $(`tr[data-rid=${value.roomId}]`).find(`td[data-date=${st}]`).eq(1).html(`<button class='btn btn-secondary' data-bid=${value.id}>${value.subject}</button>`);
+                            $(`tr[data-rid=${value.roomId}]`).find(`td[data-date=${st}]`).eq(1).append(`<button class='btn btn-secondary' data-bid=${value.id}>${value.subject}</button>`);
 
                         }
                         
@@ -82,9 +97,26 @@
                 }
             });
 
+            //綁定修改預約
             $('table').on('click', '.btn-secondary',function(){
                 let id=$(this).data('bid');
                 location.assign(`@Url.Content("~/Booking/UpdateBooking")?id=${id}`);
+                
+            });
+
+            let date = new Date(d);
+            let getdTime = date.getTime();
+            //上一週
+            $('#btnLastWeek').click(function(){                                
+                date.setTime(getdTime - 7 * 1000 * 60 * 60 * 24);
+                let ds = getDateStr(date);
+                location.assign(`@Url.Content("~/Check/WeeklyView")?date=${ds}`);
+            });
+            //下一週
+            $('#btnNextWeek').click(function () {
+                date.setTime(getdTime + 7 * 1000 * 60 * 60 * 24);
+                let ds = getDateStr(date);
+                location.assign(`@Url.Content("~/Check/WeeklyView")?date=${ds}`);
             });
 
             //抓 url get 參數
@@ -123,6 +155,11 @@
 
         .btnDiv > input:nth-child(2) {
             right: 0;
+        }
+
+        .btn-secondary {
+            margin: 5px;
+            font-size: 0.8em;
         }
     </style>
 }

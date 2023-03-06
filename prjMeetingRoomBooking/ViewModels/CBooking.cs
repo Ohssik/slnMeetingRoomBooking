@@ -47,7 +47,7 @@ namespace prjMeetingRoomBooking.ViewModels
             get { return _meeingBooking.Id; }
             set { _meeingBooking.Id=value; }
         }
-        [DisplayName("開始日期")]
+        [DisplayName("日期")]
         public string? startDate {
             get;set;
             //get
@@ -60,7 +60,7 @@ namespace prjMeetingRoomBooking.ViewModels
             //}
             //set { /*startDate=value;*/ } 
         }
-        [DisplayName("時間")]
+        [DisplayName("開始時間")]
         public string? startT
         {
             get; set;
@@ -74,7 +74,7 @@ namespace prjMeetingRoomBooking.ViewModels
             //}
             //set { /*startT=value;*/ }
         }
-        [DisplayName("結束日期")]
+        [DisplayName("日期")]
         public string? endDate
         {
             get; set;
@@ -88,7 +88,7 @@ namespace prjMeetingRoomBooking.ViewModels
             //}
             //set { /*endDate=value;*/ }
         }
-        [DisplayName("時間")]
+        [DisplayName("結束時間")]
         public string? endT {
             get; set;
             //get

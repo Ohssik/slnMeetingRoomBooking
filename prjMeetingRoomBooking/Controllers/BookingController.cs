@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using prjMeetingRoomBooking.Models;
 using prjMeetingRoomBooking.ViewModels;
 using System.Globalization;
@@ -44,7 +45,7 @@ namespace prjMeetingRoomBooking.Controllers
             try
             {
                 _db.SaveChanges();
-                return RedirectToAction("WeeklyView", "Check", new {date=$"{DateTime.Today.ToString("yyyy-MM-dd")}"});
+                return RedirectToAction("DailyView", "Check", new {date=$"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}"});
             }
             catch (Exception err)
             {
@@ -80,10 +81,10 @@ namespace prjMeetingRoomBooking.Controllers
         public IActionResult UpdateBooking(int? id)
         {
             if(id == null)
-                return RedirectToAction("WeeklyView","Check");
+                return RedirectToAction("DailyView", "Check");
             TMeeingBooking booking = _db.TMeeingBookings.FirstOrDefault(b => b.Id==(int)id);
             if(booking == null)
-                return RedirectToAction("WeeklyView", "Check");
+                return RedirectToAction("DailyView", "Check");
             CBooking cb = new CBooking();
             cb.MeeingBooking = booking;
             cb.startDate=((DateTime)booking.StartTime).ToString("yyyy-MM-dd");
@@ -101,7 +102,7 @@ namespace prjMeetingRoomBooking.Controllers
             TMeeingBooking room = _db.TMeeingBookings.FirstOrDefault(b=>b.Id==booking.Id);
             string st = $"{booking.startDate}T{booking.startT}:00";
             if (room == null)
-                return RedirectToAction("WeeklyView", "Check", new { date = $"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}" });
+                return RedirectToAction("DailyView", "Check", new { date = $"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}" });
 
             room.RoomId=booking.RoomId;
             room.Subject=booking.Subject;
@@ -113,7 +114,7 @@ namespace prjMeetingRoomBooking.Controllers
             try
             {
                 _db.SaveChanges();
-                return RedirectToAction("WeeklyView", "Check", new { date = $"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}" });
+                return RedirectToAction("DailyView", "Check", new { date = $"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}" });
             }
             catch (Exception err)
             {
@@ -122,15 +123,48 @@ namespace prjMeetingRoomBooking.Controllers
         }
         public IActionResult DeleteBooking(int? id)
         {
+            DateTime st = DateTime.Today;
             if (id != null)
             {
                 TMeeingBooking booking = _db.TMeeingBookings.FirstOrDefault(b => b.Id==(int)id);
                 if (booking == null)
-                    return RedirectToAction("WeeklyView", "Check");
+                    return RedirectToAction("DailyView", "Check");
+                st=(DateTime)booking.StartTime;
                 _db.TMeeingBookings.Remove(booking);
                 _db.SaveChanges();
             }
-            return RedirectToAction("WeeklyView", "Check");
+            return RedirectToAction("DailyView", "Check", new { date = $"{st.ToString("yyyy-MM-dd")}" });
+        }
+        public IActionResult checkBookingTime(string data)
+        {
+            //檢查是否時間已被預約
+            CPeriod period = JsonConvert.DeserializeObject<CPeriod>(data);
+            if (period == null)
+                return Json($"error: No Data!");
+            try
+            {
+                string targetDate = ((DateTime)period.FirstDay).ToString("yyyy-MM-dd");
+                int target_st = (int)period.STime;
+                int target_et = (int)period.ETime;
+                IEnumerable<ViewTmeeingBooking> records = _db.ViewTmeeingBookings.Where(r => r.StartDate==targetDate);
+                if(period.Id != null)
+                    records = _db.ViewTmeeingBookings.Where(r => r.StartDate==targetDate && r.Id != (int)period.Id);
+                foreach (ViewTmeeingBooking record in records)
+                {
+                    int st = Convert.ToInt32(record.StartTime);
+                    int et = Convert.ToInt32(record.EndTime);
+                    if ((target_st>=st && target_st<et) || (target_et>st && target_et<=et) || (target_st<=st && target_et>=et))
+                    {
+                        return Json("f");
+                    }                    
+                }
+                return Json("t");
+            }
+            catch(Exception ex)
+            {
+                return Json($"error: {ex.Message}");
+            }            
+            
         }
         private int GetWeekOfYear(DateTime dt)
         {

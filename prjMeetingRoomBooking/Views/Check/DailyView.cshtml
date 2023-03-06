@@ -1,0 +1,258 @@
+﻿@model IEnumerable<prjMeetingRoomBooking.Models.ViewTmeeingBooking>
+
+@{
+    ViewData["Title"] = "會議室預約/日查詢";
+    Layout = "_Layout";
+
+}
+@section Scripts {
+    <script>
+        $(function () {
+            //取得日期字串
+            function getDateStr(date) {
+                let getY = date.getFullYear();
+                let getM = date.getMonth() + 1;
+                getM = getM < 10 ? `0${getM}` : getM;
+                let getD = date.getDate();
+                getD = getD < 10 ? `0${getD}` : getD;
+                return getY + '-' + getM + '-' + getD;
+            }
+
+            let d = getUrlParameter('date');
+            
+            if (d == '' || d == undefined) {                
+                d = getDateStr(new Date());
+            }
+
+            //存取本日時段Array
+            let timeArr = new Array();
+            $('thead>tr:first>th:not(#txtRoom)').each(function (i, value) {
+                timeArr.push($(value).data('time'));
+            });
+            //console.log(timeArr);
+
+            //載入會議室
+            $.ajax({
+                url: `@Url.Content("~/Booking/getAllMeetingRoomsOp")`,
+                type: 'post',
+                data: {},
+                async: false,
+                dataType: 'json',
+                success: function (result) {
+                    //console.log(result);
+                    if (`${result}`.indexOf('error') == -1) {
+                        let docFrag = document.createDocumentFragment();
+                        $(result).each(function (i, value) {
+                            $(docFrag).append(`<tr data-rid=${value.roomId}>
+                                                    <td class='roomName'>${value.roomName}</td>                                                            
+                                                </tr>`);
+                        });
+                        $('tbody').append(docFrag);
+
+                        $('tbody>tr').each(function (i, value) {
+                            let tds = document.createDocumentFragment();
+                            $(timeArr).each(function (i, value) {
+                                $(tds).append(`<td data-time=${value}></td>`);
+                            });
+                            //console.log(tds);
+                            $(this).append(tds);
+                        });
+                    }
+                }
+            });
+
+            
+            function getColor(flag){
+                let color = flag ? 'lightYellow' : 'lightCyan';
+                return color;
+            }
+            let flag=true;
+            //載入本日預約記錄
+            $.ajax({
+                url: `@Url.Content("~/Check/getBookingRecords")`,
+                type: 'post',
+                data: {
+                    data: JSON.stringify({
+                        FirstDay: d,
+                        LastDay: d
+                    })
+                },
+                async: false,
+                dataType: 'json',
+                success: function (result) {
+                    //console.log(result);
+                    if(`${result}`.indexOf('error') < 0){
+                        $(result).each(function (i, value) {
+                            let getStHour = (new Date(value.startTime).getHours()) * 100;
+                            if ((new Date(value.startTime).getMinutes()) > 0)
+                                getStHour += 30;
+                            let getEtHour = (new Date(value.endTime).getHours()) * 100;
+                            if ((new Date(value.endTime).getMinutes()) > 0)
+                                getEtHour += 30;
+
+                            $(`tr[data-rid=${value.roomId}]>td:not(.roomName)`).each(function () {
+                                //$(this).css('background-color', 'transparent').html(``);
+                                let time = $(this).data('time');
+                                if (time >= getStHour && time < getEtHour) {
+                                    $(this).css('background-color', getColor(flag)).html(`<a href='@Url.Content("~/Booking/UpdateBooking")?id=${value.id}' class='' data-bid=${value.id}>${value.subject}</a>`);                                    
+                                }                                
+                            });
+                            flag = !flag;
+                        });
+                    }
+                    else{
+                        console.log(result);
+                        $('#txtDate').text('');
+                        $('#txtWeekDay').text('');
+                        alert('格式錯誤');
+                    }
+                }
+            });
+
+            //日曆選擇日期
+            $('#txtCalendar').change(function(){
+                let date = $(this).val();
+                if (date == '')
+                    return false;
+                location.assign(`@Url.Content("~/Check/DailyView")?date=${date}`);
+            });
+
+
+            let date = new Date(d);
+            let getdTime = date.getTime();
+            //前一天
+            $('#btnLastDay').click(function () {
+                date.setTime(getdTime - 1000 * 60 * 60 * 24);
+                let ds = getDateStr(date);
+                location.assign(`@Url.Content("~/Check/DailyView")?date=${ds}`);
+            });
+            //後一天
+            $('#btnNextDay').click(function () {
+                date.setTime(getdTime + 1000 * 60 * 60 * 24);
+                let ds = getDateStr(date);
+                location.assign(`@Url.Content("~/Check/DailyView")?date=${ds}`);
+            });
+
+            //抓 url get 參數
+            function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+                return false;
+            }
+        });
+    </script>
+}
+@section Styles{
+    <style>
+        .btnDiv {
+            position: relative;
+            height: 50px;
+        }
+
+        .btnDiv > input {
+            position: absolute;
+        }
+
+        .btnDiv > input:nth-child(1) {
+            left: 0;
+        }
+
+        .btnDiv > input:nth-child(2) {
+            right: 0;
+        }
+
+        .showDate {
+            margin-bottom:20px;
+        }
+    </style>
+}
+<h3 class="txtTitle">會議室預約/日查詢</h3>    
+<hr />
+<div class="showDate">
+        <span>請選擇日期：<input type="date" id="txtCalendar" /></span>&nbsp;
+        <sapn id="txtDate">@ViewBag.txtDate</sapn>
+        <span id="txtWeekDay">@ViewBag.txtWeekDay</span>
+</div>
+<div class="btnDiv">
+    <input type="button" id="btnLastDay" value="前一天" class="btn btn-success" />
+        <input type="button" id="btnNextDay" value="後一天" class="btn btn-success" />
+</div>
+    <table class="table table-bordered">
+    <thead>
+        <tr>
+            <th id="txtRoom">會議室</th>
+                <th data-time='0900'>
+                    09:00
+                </th>
+                <th data-time='0930'>
+                    09:30
+                </th>
+                <th data-time='1000'>
+                    10:00
+                </th>
+                <th data-time='1030'>
+                    10:30
+                </th>
+                <th data-time='1100'>
+                    11:00
+                </th>
+                <th data-time='1130'>
+                    11:30
+                </th>
+                <th data-time='1200'>
+                    12:00
+                </th>
+                <th data-time='1230'>
+                    12:30
+                </th>
+                <th data-time='1300'>
+                    13:00
+                </th>
+                <th data-time='1330'>
+                    13:30
+                </th>
+                <th data-time='1400'>
+                    14:00
+                </th>
+                <th data-time='1430'>
+                    14:30
+                </th>
+                <th data-time='1500'>
+                    15:00
+                </th>
+                <th data-time='1530'>
+                    15:30
+                </th>
+                <th data-time='1600'>
+                    16:00
+                </th>
+                <th data-time='1630'>
+                    16:30
+                </th>
+                <th data-time='1700'>
+                    17:00
+                </th>
+                <th data-time='1730'>
+                    17:30
+                </th>
+                <th data-time='1800'>
+                    18:00
+                </th>
+        </tr>
+    </thead>
+    <tbody>
+    
+       
+
+    </tbody>
+</table>

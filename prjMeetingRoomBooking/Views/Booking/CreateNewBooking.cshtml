@@ -52,58 +52,46 @@
     <hr />
     <div class="row">
         <div class="col-md-8 col-xl-6">
-            <form asp-action="CreateNewBooking">
-                
-               <input asp-for="RoomId" class="form-control" type="hidden" />
-                
+            <form asp-action="CreateNewBooking" id="NewBookingForm">               
                 <div class="form-group">
                     <label class="control-label">會議室</label>
-                    <select class="form-control selectRoom mb20"></select>
+                    <select asp-for="RoomId" class="form-control selectRoom mb20"></select>
                 </div>
                 <div class="form-group">
                     <label asp-for="Subject" class="control-label"></label>
-                    <input asp-for="Subject" class="form-control mb20" />
-                    <span asp-validation-for="Subject" class="text-danger"></span>
+                    <input asp-for="Subject" class="form-control mb20" />                   
                 </div>
                 <div class="form-group">
                     <label asp-for="BookingUserId" class="control-label"></label>
-                    <input asp-for="BookingUserId" class="form-control mb20" />
-                    <span asp-validation-for="BookingUserId" class="text-danger"></span>
+                    <input asp-for="BookingUserId" class="form-control mb20" />                    
                 </div>
 
                 <div class="form-group">
                     <div>
-                        <label asp-for="startDate" class="control-label inline"></label> /
-                        <label asp-for="startT" class="control-label inline"></label>
+                        <label asp-for="startDate" class="control-label inline"></label>                        
                     </div>
                     <div>
                         <input asp-for="startDate" class="form-control inline mb20" type="date" />
-                        <select asp-for="startT" class="form-control inline selectTime">
-                        </select>
+                        <input asp-for="endDate" class="form-control inline mb20" type="date" hidden />
                     </div>
-
-                    <span asp-validation-for="startDate" class="text-danger"></span>
-                    <span asp-validation-for="startT" class="text-danger"></span>
-
                 </div>
                 <div class="form-group">
                     <div>
-                        <label asp-for="endDate" class="control-label inline"></label> /
+                        <label asp-for="startT" class="control-label inline"></label> /
                         <label asp-for="endT" class="control-label inline"></label>
                     </div>
-                    <div>
-                        <input asp-for="endDate" class="form-control inline mb20" type="date" />
-                        <select asp-for="endT" class="form-control inline selectTime">
+                    <div>                        
+                        <select asp-for="startT" class="form-control inline selectTime mb20"></select>
+                        <select asp-for="endT" class="form-control inline selectTime mb20">
                         </select>
                     </div>
 
-                    <span asp-validation-for="startDate" class="text-danger"></span>
-                    <span asp-validation-for="endT" class="text-danger"></span>
                 </div>
 
-                <div class="form-group btnDiv">
+                <div class="form-group btnDiv">                    
                     <input type="submit" id="btnSubmit" value="確認" class="btn btn-primary" />
                     <input type="reset" value="重設" class="btn btn-primary" />
+                    <span class="check text-danger"></span>
                 </div>
             </form>
         </div>
@@ -172,7 +160,7 @@
                         let docFrag = document.createDocumentFragment();
                         $(docFrag).append(`<option></option>`);
                         $(result).each(function (i, value) {
-                            $(docFrag).append(`<option value=${value.roomName} data-rid=${value.roomId}>${value.roomName}</option>`);
+                            $(docFrag).append(`<option value=${value.roomId} data-rid=${value.roomId}>${value.roomName}</option>`);
                         });
                         $('.selectRoom').append(docFrag);
                     }
@@ -208,6 +196,60 @@
                         $('[name="RoomManagers"]>tbody').append(docFrag);
                     }
                 }
+            });
+
+            $('[name=startDate]').change(function(){
+                $('[name=endDate]').val($(this).val());
+            });
+
+            $('#btnSubmit').click(function(){
+                event.preventDefault();
+                $('span.check').text('');
+
+                //檢查必填欄位
+                let check_count=0;
+                $('.mb20').each(function(i,value){
+                    if($(value).val().trim() == ''){
+                        $('span.check').text('請填寫所有欄位!');               
+                        check_count++;
+                    }
+                });
+                if (check_count>0){
+                    check_count=0;
+                    return false;
+                }
+                                    
+
+                //檢查是否時間已被預約
+                let FirstDay = $('[name=startDate]').val();
+                let STime = $('[name=startT]').val();
+                let ETime = $('[name=endT]').val();
+                let RoomId = $('[name=RoomId]').val();
+                $.ajax({
+                    url: `@Url.Content("~/Booking/checkBookingTime")`,
+                    type: 'post',
+                    data: {
+                        data:JSON.stringify({
+                            FirstDay: FirstDay,
+                            STime: STime.replace(':',''),
+                            ETime: ETime.replace(':', ''),
+                            RoomId: RoomId
+                        })
+                    },
+                    dataType: 'json',
+                    success: function (result) {
+                        //console.log(result);
+                        if (`${result}`.indexOf('error') == -1) {
+                            if (`${result}`=='f'){
+                                alert('此時段已有預約，請另擇時段');
+                            }
+                            else if (`${result}` == 't'){
+                                $('#NewBookingForm').submit();
+                            }
+                        }else
+                            alert('格式錯誤');
+                    }
+                });
             });
         });
     </script>

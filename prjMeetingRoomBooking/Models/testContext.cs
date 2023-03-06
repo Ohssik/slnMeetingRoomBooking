@@ -20,6 +20,7 @@ namespace prjMeetingRoomBooking.Models
         public virtual DbSet<TMeetingRoom> TMeetingRooms { get; set; } = null!;
         public virtual DbSet<TUser> TUsers { get; set; } = null!;
         public virtual DbSet<ViewManager2Room> ViewManager2Rooms { get; set; } = null!;
+        public virtual DbSet<ViewTmeeingBooking> ViewTmeeingBookings { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -108,6 +109,43 @@ namespace prjMeetingRoomBooking.Models
                 entity.Property(e => e.RoomName).HasMaxLength(50);
 
                 entity.Property(e => e.Size).HasMaxLength(52);
+            });
+
+            modelBuilder.Entity<ViewTmeeingBooking>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("ViewTMeeingBooking");
+
+                entity.Property(e => e.BookingUserId)
+                    .HasMaxLength(50)
+                    .HasColumnName("BookingUserID");
+
+                entity.Property(e => e.EndDate)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EndTime)
+                    .HasMaxLength(8000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("id");
+
+                entity.Property(e => e.RoomId)
+                    .HasMaxLength(50)
+                    .HasColumnName("RoomID");
+
+                entity.Property(e => e.StartDate)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StartTime)
+                    .HasMaxLength(8000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Subject).HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);
