@@ -134,7 +134,7 @@
                     </div>
 
                 </div>
-
+                            
                 <div class="form-group btnDiv">
                     <input type="submit" id="btnSubmit" value="送出" class="btn btn-primary" />
                     <input type="button" id="btnDelete" value="刪除預約" class="btn btn-danger" />
@@ -172,9 +172,31 @@
                 }                
             });
 
-            //$('#btnBack').click(function () {
-            //    location.assign(`@Url.Content("~/Check/WeeklyView")`);
-            //});            
+            $('.btnDiv').hide();
+            $.ajax({
+                url: `@Url.Content("~/Booking/checkLoginIsBookingUserId")`,
+                type: 'post',
+                data: {
+                    data:$('[name=BookingUserId]').val()
+                },
+                dataType: 'json',
+                success: function (result) {
+                    //console.log(result);
+                    if (`${result}`.indexOf('error') == -1) {
+                        if (`${result}` == 'f') {
+                            $('.btnDiv').hide();
+                        }
+                        else if (`${result}` == 't') {
+                            $('.btnDiv').show();
+                        }
+                    } else{
+                        $('.btnDiv').hide();
+                        alert('格式錯誤');
+                    }
+                        
+                }
+            });
+
 
             //載入會議室選項
             $.ajax({

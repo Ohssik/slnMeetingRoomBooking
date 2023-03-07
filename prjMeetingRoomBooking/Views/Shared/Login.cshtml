@@ -1,9 +1,9 @@
 ﻿@using prjMeetingRoomBooking.Models
 @{
 
-    if (!Context.Session.Keys.Contains(CDictionary.SK_LOGINED_USER))
+    if (Context.Session.Keys.Contains(CDictionary.SK_LOGINED_USER))
     {
-        Context.Response.Redirect(Url.Content("~/Booking/Index"));
+        Context.Response.Redirect(Url.Content("~/Booking/CreateNewBooking"));
     }
 
 }
@@ -16,9 +16,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/prjMeetingRoomBooking.styles.css" asp-append-version="true" />
-    <style>
-        
-    </style>
+    
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -40,12 +38,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Check" asp-action="WeeklyView">週查詢</a>
-                        </li>                        
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Check" asp-action="MonthlyView">月查詢</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Booking" asp-action="Logout" id="btnLogout">登出</a>
+                            <a class="nav-link text-light" asp-area="" asp-controller="Check" asp-action="MonthlyView">月查詢</a>
                         </li>
                     </ul>
                 </div>
@@ -66,15 +61,14 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        $(function(){            
-            $('#btnLogout').click(function(){
-                event.preventDefault();
-                if(confirm('確定登出嗎?')){
-                    location.assign('@Url.Content("~/booking/logout")');
-                }
+        $(function(){
+            $('ul.navbar-nav.flex-grow-1>li>a:not(#btnLogout)').click(function(){
+                alert('請先登入');
+                return false;
             });
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

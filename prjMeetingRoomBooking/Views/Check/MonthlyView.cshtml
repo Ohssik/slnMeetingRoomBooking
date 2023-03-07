@@ -1,0 +1,136 @@
+﻿
+@{
+    ViewData["Title"] = "會議室預約/月查詢";
+    Layout = "_Layout";
+}
+
+@section Scripts {
+    <script src="@Url.Content("~/js/calendarjs.js")"></script>
+    <script>
+        $(function () {
+            //取得日期字串
+            function getDateStr(date) {
+                let getY = date.getFullYear();
+                let getM = date.getMonth() + 1;
+                getM = getM < 10 ? `0${getM}` : getM;
+                let getD = date.getDate();
+                getD = getD < 10 ? `0${getD}` : getD;
+                return getY + '-' + getM + '-' + getD;
+            }
+
+            let d = getDateStr(new Date());
+
+            
+            //預設為今天
+            $('#yearList').val((new Date()).getFullYear());
+            $('#monthList').val((new Date()).getMonth() + 1);
+            getDailyBooking(d);
+            //$('#dateList').val((new Date()).getDate());
+
+            //點擊日期帶出當日會議
+            $('#showCalendar').on('click','.calendarItem',function(){
+                //alert($(this).attr('id'));
+                $('#showDate').html('');
+                let date = $(this).attr('id');
+                if(!date)
+                    return false;
+                                    
+                $(this).addClass('bgcMarked').siblings('.calendarItem').removeClass('bgcMarked');
+                getDailyBooking(date);                
+            });
+
+            //綁定修改預約
+            $('#showDate').on('click', '.btn-secondary', function () {
+                let id = $(this).data('bid');
+                location.assign(`@Url.Content("~/Booking/UpdateBooking")?id=${id}`);
+
+            });
+
+            
+            function getDailyBooking(date){
+                $.ajax({
+                    url: `@Url.Content("~/Check/getBookingRecords")`,
+                    type: 'post',
+                    data: {
+                        data: JSON.stringify({
+                            FirstDay: date,
+                            LastDay: date
+                        })
+                    },
+                    async: false,
+                    dataType: 'json',
+                    success: function (result) {
+                        //console.log(result);
+                        if (`${result}`.indexOf('error') < 0) {
+                            $(result).each(function (i, value) {
+                                $('#showDate').append(`
+                                            <button class='btn btn-secondary' data-bid=${value.id}>
+                                            ${value.subject}／${value.roomId}會議室
+                                            </button>
+                                        `);                               
+                            });
+                        }
+                        else {
+                            console.log(result);
+                            alert('格式錯誤');
+                        }
+                    }
+                });
+            }
+
+            //抓 url get 參數
+            function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+                return false;
+            }
+        });
+    </script>
+}
+    @section Styles{
+    <link href="@Url.Content("~/css/calendarstyle.css")" rel="stylesheet" />
+    <style>        
+        .btn-secondary {
+            margin: 5px;
+            font-size: 0.8em;
+        }
+    </style>
+}
+    <h3 class="txtTitle">會議室預約/月查詢</h3>
+    <hr />
+    
+    <div>
+        <div style="width:80%;margin: 0 auto;">
+            <div class="displayFlex">
+                <div class="float">
+                    <p style="font-weight: bold;">請選擇月份</p>
+                    <p>
+                        <select name="sl" id="yearList"></select>年&nbsp;
+                        <select name="sl" id="monthList"></select>月&nbsp;
+                        @*<select name="" id="dateList"></select>日*@
+
+                    </p>
+
+                    <div id="showCalendar">
+                    </div>
+                </div>
+                <div class="float">
+                    <div class="bgc">Information</div>
+                    <div id="showDate"></div>
+                </div>
+
+            </div>
+           
+        </div>
+    </div>
+

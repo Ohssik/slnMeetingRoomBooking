@@ -19,12 +19,52 @@ namespace prjMeetingRoomBooking.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Index(CBooking booking)
+        public IActionResult Index(TUser login)
         {
-            return View();
+            TUser result = _db.TUsers.FirstOrDefault(u => u.UserId==login.UserId && u.UserPwd == login.UserPwd);
+            if (result==null)
+                return View();
+            string json = JsonConvert.SerializeObject(result);
+            HttpContext.Session.SetString(CDictionary.SK_LOGINED_USER, json);
+            return RedirectToAction("CreateNewBooking");
+            
+        }
+        public IActionResult Logout()
+        {
+            if (HttpContext.Session.Keys.Contains(CDictionary.SK_LOGINED_USER))            
+                HttpContext.Session.Remove(CDictionary.SK_LOGINED_USER);
+            
+            return RedirectToAction("Index");
+        }
+        public IActionResult checkUserPwd(string data)
+        {
+            if(string.IsNullOrEmpty(data))
+                return Json("error: No Data");
+            try
+            {
+                TUser user = JsonConvert.DeserializeObject<TUser>(data);
+                TUser result = _db.TUsers.FirstOrDefault(u => u.UserId==user.UserId && u.UserPwd == user.UserPwd);
+                if (result==null)
+                    return Json("f");
+                
+                return Json("t");
+            }
+            catch
+            {
+                return Json("error: Invalid Data");
+            }                       
+            
         }
         public IActionResult CreateNewBooking()
         {
+            if (!HttpContext.Session.Keys.Contains(CDictionary.SK_LOGINED_USER))
+                return RedirectToAction("Index");
+            string data = HttpContext.Session.GetString(CDictionary.SK_LOGINED_USER);
+            if (string.IsNullOrEmpty(data))
+                return RedirectToAction("Index");
+            TUser user = JsonConvert.DeserializeObject<TUser>(data);
+            ViewBag.UserId=user.UserId;
+
             return View();
         }
         [HttpPost]
@@ -77,6 +117,20 @@ namespace prjMeetingRoomBooking.Controllers
             {
                 return Json($"error:{err.Message}");
             }
+        }
+        public IActionResult checkLoginIsBookingUserId(string data)
+        {
+            if(string.IsNullOrEmpty(data))
+                return Json($"error: No Data!");
+            if(!HttpContext.Session.Keys.Contains(CDictionary.SK_LOGINED_USER))
+                return RedirectToAction("Index");
+            string json = HttpContext.Session.GetString(CDictionary.SK_LOGINED_USER);
+
+            TUser login = JsonConvert.DeserializeObject<TUser>(json);
+            if (data != login.UserId)
+                return Json("f");
+            return Json("t");
+
         }
         public IActionResult UpdateBooking(int? id)
         {

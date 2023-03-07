@@ -1,0 +1,38 @@
+.displayFlex{
+    display: flex;
+}
+.float{            
+    width: 50%;
+    height: 500px;                        
+}
+.bgc{
+    background-color: rgb(65, 65, 0);
+    color: white;
+    text-align: center;
+}
+.bgcMarked{
+    background-color: rgb(156, 156, 1);
+    color: white;
+}
+select{
+    width: 80px;
+}
+#showDate{
+    margin: 3px 0;
+    border: 1px solid black;
+    height: 454px;
+    padding: 10px;
+}
+
+#showCalendar{
+    width:90%;
+    margin: 40px auto;            
+}
+.calendarItem{
+    float: left;
+    width: 12%;
+    height: 20px;                                
+    margin: 1px 2px;   
+    text-align: center; 
+    cursor:pointer;
+}
