@@ -6,7 +6,7 @@
         public DateTime? LastDay { get; set; }
         public int? STime { get; set; }
         public int? ETime { get; set; }
-        public int? RoomId { get; set; }
+        public string? RoomId { get; set; }
         public int? Id { get; set; }
     }
 }

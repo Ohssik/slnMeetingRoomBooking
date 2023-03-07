@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (i >= getFirstWeekDay && i < getLastDate + getFirstWeekDay) {
                 dateItem.innerHTML = i - (getFirstWeekDay - 1);                
                 date = i - (getFirstWeekDay - 1);
-                date = date < 10 ? `0${date}` : m;
+                date = date < 10 ? `0${date}` : date;
                 dateItem.id = `${y}-${m}-${date}`;
             }
             showCalendar.appendChild(dateItem);
