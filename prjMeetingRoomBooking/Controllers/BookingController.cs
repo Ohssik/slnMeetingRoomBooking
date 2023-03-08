@@ -200,9 +200,9 @@ namespace prjMeetingRoomBooking.Controllers
                 string targetDate = ((DateTime)period.FirstDay).ToString("yyyy-MM-dd");
                 int target_st = (int)period.STime;
                 int target_et = (int)period.ETime;
-                IEnumerable<ViewTmeeingBooking> records = _db.ViewTmeeingBookings.Where(r => r.StartDate==targetDate);
+                IEnumerable<ViewTmeeingBooking> records = _db.ViewTmeeingBookings.Where(r => r.StartDate==targetDate && r.RoomId==period.RoomId);
                 if(period.Id != null)
-                    records = _db.ViewTmeeingBookings.Where(r => r.StartDate==targetDate && r.Id != (int)period.Id);
+                    records = _db.ViewTmeeingBookings.Where(r => (r.StartDate==targetDate && r.RoomId==period.RoomId) && r.Id != (int)period.Id);
                 foreach (ViewTmeeingBooking record in records)
                 {
                     int st = Convert.ToInt32(record.StartTime);
