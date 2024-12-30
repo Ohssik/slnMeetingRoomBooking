@@ -1,16 +1,17 @@
-﻿using prjMeetingRoomBooking.Models;
+﻿using MeetingRoomBooking.Service.Dtos;
+using prjMeetingRoomBooking.Models;
 using System.ComponentModel;
 
 namespace prjMeetingRoomBooking.ViewModels
 {
     public class CBooking
     {
-        private TMeeingBooking _meeingBooking;
+        private BookingDto _meeingBooking;
         public CBooking()
         {
-            _meeingBooking = new TMeeingBooking();
+            _meeingBooking = new BookingDto();
         }
-        public TMeeingBooking MeeingBooking
+        public BookingDto MeeingBooking
         { 
             get { return _meeingBooking; } 
             set { _meeingBooking=value; }
@@ -48,58 +49,15 @@ namespace prjMeetingRoomBooking.ViewModels
             set { _meeingBooking.Id=value; }
         }
         [DisplayName("日期")]
-        public string? startDate {
-            get;set;
-            //get
-            //{
-            //    string date = "";
-            //    if (StartTime!=null)
-            //        date = ((DateTime)StartTime).ToString("yyyy-MM-dd");
-
-            //    return date;
-            //}
-            //set { /*startDate=value;*/ } 
-        }
+        public string? startDate { get;set; }
         [DisplayName("開始時間")]
-        public string? startT
-        {
-            get; set;
-            //get
-            //{
-            //    string time = "";
-            //    if (StartTime!=null)
-            //        time = ((DateTime)StartTime).ToString("HH-mm");
-
-            //    return time;
-            //}
-            //set { /*startT=value;*/ }
-        }
+        public string? startT { get; set; }
+        
         [DisplayName("日期")]
-        public string? endDate
-        {
-            get; set;
-            //get
-            //{
-            //    string date = "";
-            //    if (EndTime!=null)
-            //        date = ((DateTime)EndTime).ToString("yyyy-MM-dd");
-
-            //    return date;
-            //}
-            //set { /*endDate=value;*/ }
-        }
+        public string? endDate { get; set; }
+       
         [DisplayName("結束時間")]
-        public string? endT {
-            get; set;
-            //get
-            //{
-            //    string time = "";
-            //    if (EndTime!=null)
-            //        time = ((DateTime)EndTime).ToString("HH-mm");
-
-            //    return time;
-            //}
-            //set { /*endT=value;*/ }
-        }
+        public string? endT { get; set; }
+       
     }
 }

@@ -150,7 +150,7 @@
 
             //載入會議室選項
             $.ajax({
-                url: `@Url.Content("~/Booking/getAllMeetingRoomsOp")`,
+                url: `@Url.Content("~/Booking/GetAllMeetingRoomsOp")`,
                 type: 'post',
                 data: {},
                 dataType: 'json',
@@ -176,7 +176,7 @@
 
             //載入管理人表
             $.ajax({
-                url: `@Url.Content("~/Booking/getAllRoomManagers")`,
+                url: `@Url.Content("~/Booking/GetAllRoomManagers")`,
                 type: 'post',
                 data: {},
                 dataType: 'json',
@@ -226,17 +226,15 @@
                 let ETime = $('[name=endT]').val();
                 let RoomId = $('[name=RoomId]').val();
                 $.ajax({
-                    url: `@Url.Content("~/Booking/checkBookingTime")`,
+                    url: `@Url.Content("~/Booking/CheckBookingTime")`,
                     type: 'post',
-                    data: {
-                        data:JSON.stringify({
+                    data: JSON.stringify({
                             FirstDay: FirstDay,
                             STime: STime.replace(':',''),
                             ETime: ETime.replace(':', ''),
                             RoomId: RoomId
-                        })
-                    },
-                    dataType: 'json',
+                        }),
+                    contentType: 'application/json',
                     success: function (result) {
                         console.log(result);
                         if (`${result}`.indexOf('error') == -1) {

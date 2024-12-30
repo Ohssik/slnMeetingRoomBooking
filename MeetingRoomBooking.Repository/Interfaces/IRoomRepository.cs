@@ -1,4 +1,5 @@
 ﻿using MeetingRoomBooking.Repository.DataModels;
+using MeetingRoomBooking.Repository.ParameterModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -10,5 +10,8 @@ namespace MeetingRoomBooking.Service.Dtos
     {
         public int RoomId { get; set; }
         public string? RoomName { get; set; } = string.Empty;
+        public string? ManagerName { get; set; } = string.Empty;
+        public string? Size { get; set; } = string.Empty;
+
     }
 }

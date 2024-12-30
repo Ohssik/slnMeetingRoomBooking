@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace MeetingRoomBooking.Repository.DataModels
+namespace MeetingRoomBooking.Service.Dtos
 {
-    public partial class TMeeingBooking
+    public class BookingDto
     {
         public string? RoomId { get; set; } = string.Empty;
         public DateTime? StartTime { get; set; }
