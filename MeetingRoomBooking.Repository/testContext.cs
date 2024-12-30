@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using MeetingRoomBooking.Repository.DataModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace prjMeetingRoomBooking.Models
+namespace MeetingRoomBooking.Repository
 {
     public partial class testContext : DbContext
     {

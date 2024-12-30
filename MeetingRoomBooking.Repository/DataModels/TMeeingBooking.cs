@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace prjMeetingRoomBooking.Models
+namespace MeetingRoomBooking.Repository.DataModels
 {
     public partial class TMeeingBooking
     {

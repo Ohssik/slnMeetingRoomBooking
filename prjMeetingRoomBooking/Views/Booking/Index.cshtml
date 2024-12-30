@@ -1,4 +1,4 @@
-﻿@model prjMeetingRoomBooking.Models.TUser
+﻿@model prjMeetingRoomBooking.Parameters.GetUserParameter
 
 @{
     ViewData["Title"] = "會議室預約系統";
@@ -92,13 +92,11 @@
                     $.ajax({
                         url: `@Url.Content("~/Booking/checkUserPwd")`,
                         type: 'post',
-                        data: {
-                            data: JSON.stringify({
+                        data: JSON.stringify({
                                 UserId: UserId,
                                 UserPwd: UserPwd
-                            })
-                        },                        
-                        dataType: 'json',
+                            }),                                               
+                        contentType: 'application/json',
                         success: function (result) {
                             //console.log(result);
                             if (`${result}`.indexOf('error') < 0) {

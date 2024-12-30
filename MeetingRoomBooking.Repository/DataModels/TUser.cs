@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace prjMeetingRoomBooking.Models
+namespace MeetingRoomBooking.Repository.DataModels
 {
     public partial class TUser
     {

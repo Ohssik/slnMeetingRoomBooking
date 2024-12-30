@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MapsterMapper;
+using MeetingRoomBooking.Service.Interfaces;
+using MeetingRoomBooking.Service.ParameterDtos;
+using MeetingRoomBooking.Service.Dtos;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using prjMeetingRoomBooking.Models;
+using prjMeetingRoomBooking.Parameters;
 using prjMeetingRoomBooking.ViewModels;
 using System.Globalization;
 
@@ -9,44 +14,62 @@ namespace prjMeetingRoomBooking.Controllers
 {
     public class BookingController : Controller
     {
-        private readonly testContext _db;
-        public BookingController(testContext db)
+        private readonly IUserService _userService;
+        private readonly IBookingService _bookingService;
+        private readonly IRoomService _roomService;
+        private readonly IMapper _mapper;
+
+        public BookingController(IUserService userService, IMapper mapper, 
+            IBookingService bookingService, IRoomService roomService)
         {
-            _db = db;
+            _mapper = mapper;
+            _userService = userService;
+            _bookingService = bookingService;
+            _roomService = roomService;
         }
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index()
         {           
             return View();
         }
+
         [HttpPost]
-        public IActionResult Index(TUser login)
+        public async Task<IActionResult> Index(GetUserParameter parameter)
         {
-            TUser result = _db.TUsers.FirstOrDefault(u => u.UserId==login.UserId && u.UserPwd == login.UserPwd);
-            if (result==null)
+            var parameterDto = _mapper.Map<GetUserParameterDto>(parameter);
+            var result = await _userService.GetUserByIdAsync(parameterDto);
+
+            if (string.IsNullOrEmpty(result.UserId))
+            {
                 return View();
+            }
+
             string json = JsonConvert.SerializeObject(result);
             HttpContext.Session.SetString(CDictionary.SK_LOGINED_USER, json);
             return RedirectToAction("CreateNewBooking");
-            
         }
-        public IActionResult Logout()
+
+        public async Task<IActionResult> Logout()
         {
             if (HttpContext.Session.Keys.Contains(CDictionary.SK_LOGINED_USER))            
                 HttpContext.Session.Remove(CDictionary.SK_LOGINED_USER);
             
             return RedirectToAction("Index");
         }
-        public IActionResult checkUserPwd(string data)
+
+        [HttpPost]
+        public async Task<IActionResult> checkUserPwd([FromBody] GetUserParameter parameter)
         {
-            if(string.IsNullOrEmpty(data))
-                return Json("error: No Data");
             try
             {
-                TUser user = JsonConvert.DeserializeObject<TUser>(data);
-                TUser result = _db.TUsers.FirstOrDefault(u => u.UserId==user.UserId && u.UserPwd == user.UserPwd);
-                if (result==null)
+                var parameterDto = _mapper.Map<GetUserParameterDto>(parameter);
+                var result = await _userService.GetUserByIdAsync(parameterDto);
+
+                if (string.IsNullOrEmpty(result.UserId))
+                {
                     return Json("f");
-                
+                }
+
                 return Json("t");
             }
             catch
@@ -55,36 +78,60 @@ namespace prjMeetingRoomBooking.Controllers
             }                       
             
         }
-        public IActionResult CreateNewBooking()
+
+        public async Task<IActionResult> CreateNewBooking()
         {
             if (!HttpContext.Session.Keys.Contains(CDictionary.SK_LOGINED_USER))
+            {
                 return RedirectToAction("Index");
+            }
+
             string data = HttpContext.Session.GetString(CDictionary.SK_LOGINED_USER);
+
             if (string.IsNullOrEmpty(data))
+            {
                 return RedirectToAction("Index");
-            TUser user = JsonConvert.DeserializeObject<TUser>(data);
-            ViewBag.UserId=user.UserId;
+            }
+
+            var user = JsonConvert.DeserializeObject<UserDto>(data);
+            ViewBag.UserId = user?.UserId ?? string.Empty;
 
             return View();
         }
+
         [HttpPost]
-        public IActionResult CreateNewBooking(CBooking booking)
+        public async Task<IActionResult> CreateNewBooking(CBooking booking)
         {
             if (booking == null)
+            {
                 return View();
+            }
 
-            TMeeingBooking room = new TMeeingBooking();
-            room.RoomId=booking.RoomId;
-            room.Subject=booking.Subject;
-            room.BookingUserId=booking.BookingUserId;
-            string st = $"{booking.startDate}T{booking.startT}:00";
-            string et = $"{booking.endDate}T{booking.endT}:00";
-            room.StartTime=Convert.ToDateTime(st);
-            room.EndTime=Convert.ToDateTime(et);
-            _db.TMeeingBookings.Add(room);
+            var parameter = new AddBookingParameterDto
+            {
+                RoomId = booking.RoomId,
+                Subject = booking.Subject,
+                BookingUserId = booking.BookingUserId,
+                StartTime = DateTime.TryParse($"{booking.startDate}T{booking.startT}:00", out var st) ? st : null,
+                EndTime = DateTime.TryParse($"{booking.endDate}T{booking.endT}:00", out var et) ? et : null,
+            };
+
+            //TMeeingBooking room = new TMeeingBooking();
+            //room.RoomId=booking.RoomId;
+            //room.Subject=booking.Subject;
+            //room.BookingUserId=booking.BookingUserId;
+            //string st = $"{booking.startDate}T{booking.startT}:00";
+            //string et = $"{booking.endDate}T{booking.endT}:00";
+            //room.StartTime=Convert.ToDateTime(st);
+            //room.EndTime=Convert.ToDateTime(et);
+
+            //_db.TMeeingBookings.Add(room);
+
+
             try
             {
-                _db.SaveChanges();
+                await _bookingService.AddBookingAsync(parameter);
+                //_db.SaveChanges();
                 return RedirectToAction("DailyView", "Check", new {date=$"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}"});
             }
             catch (Exception err)
@@ -93,11 +140,12 @@ namespace prjMeetingRoomBooking.Controllers
             }
         }
 
-        public IActionResult getAllMeetingRoomsOp()
+        public async Task<IActionResult> getAllMeetingRoomsOp()
         {
             try
             {
-                var rooms = _db.TMeetingRooms.Select(r => new { r.RoomName, r.RoomId });
+                //var rooms = _db.TMeetingRooms.Select(r => new { r.RoomName, r.RoomId });
+                var rooms = await _roomService.GetAllAsync();
                 return Json(rooms);
             }
             catch(Exception err)
@@ -106,7 +154,8 @@ namespace prjMeetingRoomBooking.Controllers
             }
             
         }
-        public IActionResult getAllRoomManagers()
+
+        public async Task<IActionResult> getAllRoomManagers()
         {                        
             try
             {
@@ -118,7 +167,7 @@ namespace prjMeetingRoomBooking.Controllers
                 return Json($"error:{err.Message}");
             }
         }
-        public IActionResult checkLoginIsBookingUserId(string data)
+        public async Task<IActionResult> checkLoginIsBookingUserId(string data)
         {
             if(string.IsNullOrEmpty(data))
                 return Json($"error: No Data!");
@@ -132,7 +181,7 @@ namespace prjMeetingRoomBooking.Controllers
             return Json("t");
 
         }
-        public IActionResult UpdateBooking(int? id)
+        public async Task<IActionResult> UpdateBooking(int? id)
         {
             if(id == null)
                 return RedirectToAction("DailyView", "Check");
@@ -148,7 +197,7 @@ namespace prjMeetingRoomBooking.Controllers
             return View(cb);
         }
         [HttpPost]
-        public IActionResult UpdateBooking(CBooking booking)
+        public async Task<IActionResult> UpdateBooking(CBooking booking)
         {
             if (booking == null)
                 return View();
@@ -175,7 +224,7 @@ namespace prjMeetingRoomBooking.Controllers
                 return View();
             }
         }
-        public IActionResult DeleteBooking(int? id)
+        public async Task<IActionResult> DeleteBooking(int? id)
         {
             DateTime st = DateTime.Today;
             if (id != null)
@@ -189,7 +238,7 @@ namespace prjMeetingRoomBooking.Controllers
             }
             return RedirectToAction("DailyView", "Check", new { date = $"{st.ToString("yyyy-MM-dd")}" });
         }
-        public IActionResult checkBookingTime(string data)
+        public async Task<IActionResult> checkBookingTime(string data)
         {
             //檢查是否時間已被預約
             CPeriod period = JsonConvert.DeserializeObject<CPeriod>(data);
