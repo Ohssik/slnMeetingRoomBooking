@@ -10,6 +10,6 @@ namespace MeetingRoomBooking.Repository.Interfaces
 {
     public interface IUserRepository
     {
-        Task<TUser> GetUserByIdAsync(GetUserParameterModel parameter);
+        Task<TUser> GetUserAsync(GetUserParameterModel parameter);
     }
 }

@@ -21,5 +21,11 @@ namespace MeetingRoomBooking.Repository.Implements
         {
             return await Task.Run(()=>_db.TMeetingRooms.Select(r => r).ToList()) ?? Enumerable.Empty<TMeetingRoom>();
         }
+
+        public async Task<IEnumerable<ViewManager2Room>> GetAllRoomInfoAsync()
+        {
+            var managers = await Task.Run(()=> _db.ViewManager2Rooms.Select(m => m).ToList());
+            return managers ?? Enumerable.Empty<ViewManager2Room>();
+        }
     }
 }

@@ -8,9 +8,10 @@ namespace MeetingRoomBooking.Service.Dtos
 {
     public class RoomDto
     {
-        public int RoomId { get; set; }
+        public string RoomId { get; set; } = string.Empty;
         public string? RoomName { get; set; } = string.Empty;
         public string? ManagerName { get; set; } = string.Empty;
+        public string? ManagerId { get; set; } = string.Empty;
         public string? Size { get; set; } = string.Empty;
 
     }

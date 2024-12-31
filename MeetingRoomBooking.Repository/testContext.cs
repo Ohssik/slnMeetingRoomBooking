@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using MeetingRoomBooking.Repository.DataModels;
+﻿using MeetingRoomBooking.Repository.DataModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace MeetingRoomBooking.Repository
 {
@@ -17,11 +14,11 @@ namespace MeetingRoomBooking.Repository
         {
         }
 
-        public virtual DbSet<TMeeingBooking> TMeeingBookings { get; set; } = null!;
+        public virtual DbSet<TMeetingBooking> TMeeingBookings { get; set; } = null!;
         public virtual DbSet<TMeetingRoom> TMeetingRooms { get; set; } = null!;
         public virtual DbSet<TUser> TUsers { get; set; } = null!;
         public virtual DbSet<ViewManager2Room> ViewManager2Rooms { get; set; } = null!;
-        public virtual DbSet<ViewTmeeingBooking> ViewTmeeingBookings { get; set; } = null!;
+        public virtual DbSet<ViewTmeetingBooking> ViewTmeeingBookings { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -34,9 +31,9 @@ namespace MeetingRoomBooking.Repository
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TMeeingBooking>(entity =>
+            modelBuilder.Entity<TMeetingBooking>(entity =>
             {
-                entity.ToTable("tMeeingBooking");
+                entity.ToTable("tMeetingBooking");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
@@ -112,11 +109,11 @@ namespace MeetingRoomBooking.Repository
                 entity.Property(e => e.Size).HasMaxLength(52);
             });
 
-            modelBuilder.Entity<ViewTmeeingBooking>(entity =>
+            modelBuilder.Entity<ViewTmeetingBooking>(entity =>
             {
                 entity.HasNoKey();
 
-                entity.ToView("ViewTMeeingBooking");
+                entity.ToView("ViewTMeetingBooking");
 
                 entity.Property(e => e.BookingUserId)
                     .HasMaxLength(50)

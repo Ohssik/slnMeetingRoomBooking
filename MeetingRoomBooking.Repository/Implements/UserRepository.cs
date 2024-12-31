@@ -14,9 +14,10 @@ namespace MeetingRoomBooking.Repository.Implements
             _db = db;
         }
 
-        public async Task<TUser> GetUserByIdAsync(GetUserParameterModel parameter)
+        public async Task<TUser> GetUserAsync(GetUserParameterModel parameter)
         {
-            var result = await _db.TUsers.FirstOrDefaultAsync(u => u.UserId == parameter.UserId && u.UserPwd == parameter.UserPwd);
+            var result = await _db.TUsers.FirstOrDefaultAsync(
+                u => u.UserId == parameter.UserId && u.UserPwd == parameter.UserPwd);
             return result ?? new TUser();
         }
     }

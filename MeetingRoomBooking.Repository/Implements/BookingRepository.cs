@@ -16,7 +16,7 @@ namespace MeetingRoomBooking.Repository.Implements
 
         public async Task AddBookingAsync(AddBookingParameterModel parameter)
         {           
-            await _db.TMeeingBookings.AddAsync(new TMeeingBooking
+            await _db.TMeeingBookings.AddAsync(new TMeetingBooking
             {
                 RoomId = parameter.RoomId,
                 Subject = parameter.Subject,
@@ -28,10 +28,10 @@ namespace MeetingRoomBooking.Repository.Implements
             await _db.SaveChangesAsync();
         }
 
-        public async Task<TMeeingBooking> GetBookingById(GetBookingParameterModel parameter)
+        public async Task<TMeetingBooking> GetBookingAsync(GetBookingParameterModel parameter)
         {
             var booking = await _db.TMeeingBookings.FirstOrDefaultAsync(b => b.Id== parameter.Id);
-            return booking ?? new TMeeingBooking();
+            return booking ?? new TMeetingBooking();
         }
 
         public async Task ModifyBookingAsync(ModifyBookingParameterModel parameter)
@@ -57,6 +57,41 @@ namespace MeetingRoomBooking.Repository.Implements
                 await Task.Run(()=>_db.TMeeingBookings.Remove(booking));
                 await _db.SaveChangesAsync();
             }
+        }
+
+        public async Task<IEnumerable<TMeetingBooking>> GetBookingsForCheckAsync(GetBookingParameterModel parameter)
+        {
+            var startDate = parameter.FirstDay.GetValueOrDefault().ToString("yyyy-MM-dd");
+            var roomId = parameter.RoomId;
+            var id = parameter.Id;
+
+            var result = await Task.Run(()=> _db.TMeeingBookings.FromSqlInterpolated(
+                                                @$"SELECT RoomID, 
+                                                        StartTime,
+                                                        EndTime,
+                                                        Subject,
+                                                        BookingUserID,
+                                                        id 
+                                                    FROM tMeetingBooking
+                                                    WHERE CONVERT(date, StartTime)={startDate} 
+                                                    and RoomID={roomId} 
+                                                    and id!={id}")
+                                            .ToList());
+
+            return result ?? Enumerable.Empty<TMeetingBooking>();
+        }
+
+        public async Task<IEnumerable<TMeetingBooking>> GetBookingListAsync(GetBookingParameterModel parameter)
+        {
+            var records = await Task.Run(() => _db.TMeeingBookings
+                                            .Where(
+                                                r => r.StartTime >= parameter.FirstDay && r.EndTime < parameter.LastDay)
+                                            .Select(r => r)
+                                            .OrderBy(r => r.RoomId)
+                                            .ToList()
+                                        );
+
+            return records ?? Enumerable.Empty<TMeetingBooking>();
         }
     }
 }

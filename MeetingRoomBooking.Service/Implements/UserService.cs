@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using MeetingRoomBooking.Repository.Interfaces;
+using MeetingRoomBooking.Repository.ParameterModels;
 using MeetingRoomBooking.Service.Dtos;
 using MeetingRoomBooking.Service.Interfaces;
 using MeetingRoomBooking.Service.ParameterDtos;
@@ -22,9 +23,10 @@ namespace MeetingRoomBooking.Service.Implements
             _userRepository = userRepository;
         }
 
-        public async Task<UserDto> GetUserByIdAsync(GetUserParameterDto parameter)
+        public async Task<UserDto> GetUserAsync(GetUserParameterDto parameter)
         {
-            throw new NotImplementedException();
+            var result = await _userRepository.GetUserAsync(_mapper.Map<GetUserParameterModel>(parameter));
+            return _mapper.Map<UserDto>(result);
         }
     }
 }

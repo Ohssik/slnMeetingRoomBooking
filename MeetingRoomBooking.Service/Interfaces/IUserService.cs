@@ -10,7 +10,7 @@ namespace MeetingRoomBooking.Service.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDto> GetUserByIdAsync(GetUserParameterDto parameter);
+        Task<UserDto> GetUserAsync(GetUserParameterDto parameter);
 
     }
 }

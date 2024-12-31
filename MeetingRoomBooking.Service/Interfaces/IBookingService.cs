@@ -1,10 +1,5 @@
 ﻿using MeetingRoomBooking.Service.Dtos;
 using MeetingRoomBooking.Service.ParameterDtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MeetingRoomBooking.Service.Interfaces
 {
@@ -12,10 +7,13 @@ namespace MeetingRoomBooking.Service.Interfaces
     {
         Task AddBookingAsync(AddBookingParameterDto parameter);
 
-        Task<BookingDto> GetBooking(GetBookingParameterDto parameter);
+        Task<BookingDto> GetBookingAsync(GetBookingParameterDto parameter);
+        Task<IEnumerable<BookingDto>> GetBookingListAsync(GetBookingParameterDto parameter);
 
         Task ModifyBookingAsync(ModifyBookingParameterDto parameter);
 
         Task RemoveBookingAsync(int id);
+
+        Task<bool> IsBooked(GetBookingParameterDto parameter);
     }
 }

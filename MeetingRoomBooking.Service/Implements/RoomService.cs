@@ -2,11 +2,6 @@
 using MeetingRoomBooking.Repository.Interfaces;
 using MeetingRoomBooking.Service.Dtos;
 using MeetingRoomBooking.Service.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MeetingRoomBooking.Service.Implements
 {
@@ -24,6 +19,11 @@ namespace MeetingRoomBooking.Service.Implements
         public async Task<IEnumerable<RoomDto>> GetAllAsync()
         {
             return _mapper.Map<IEnumerable<RoomDto>>(await _roomRepository.GetAllAsync());
+        }
+
+        public async Task<IEnumerable<RoomDto>> GetAllRoomInfoAsync()
+        {
+            return _mapper.Map<IEnumerable<RoomDto>>(await _roomRepository.GetAllRoomInfoAsync());
         }
     }
 }

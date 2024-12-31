@@ -11,5 +11,6 @@ namespace MeetingRoomBooking.Repository.Interfaces
     public interface IRoomRepository
     {
         Task<IEnumerable<TMeetingRoom>> GetAllAsync();
+        Task<IEnumerable<ViewManager2Room>> GetAllRoomInfoAsync();
     }
 }
