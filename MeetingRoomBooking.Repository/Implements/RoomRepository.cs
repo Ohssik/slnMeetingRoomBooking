@@ -1,25 +1,37 @@
-﻿using MeetingRoomBooking.Repository.DataModels;
+﻿using Dapper;
+using MeetingRoomBooking.Repository.Helpers;
 using MeetingRoomBooking.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MeetingRoomBooking.Repository.Models;
+using System.Data;
 
 namespace MeetingRoomBooking.Repository.Implements
 {
-    public class RoomRepository : IRoomRepository
+    public class RoomRepository:IRoomRepository
     {
-        private readonly testContext _db;
+        private readonly IDatabaseHelper _databaseHelper;
 
-        public RoomRepository(testContext db) 
+        public RoomRepository(IDatabaseHelper databaseHelper)
         {
-            _db = db;
+            _databaseHelper = databaseHelper;
         }
 
-        public async Task<IEnumerable<TMeetingRoom>> GetAllAsync()
+        // <summary>Get All Meeting Rooms Info</summary>
+        public async Task<IEnumerable<MeetingRoomModel>> GetAllRoomsAsync()
         {
-            return await Task.Run(()=>_db.TMeetingRooms.Select(r => r).ToList()) ?? Enumerable.Empty<TMeetingRoom>();
+            using IDbConnection conn = _databaseHelper.GetConnection();
+            string sqlCmd = @"SELECT RoomID,RoomName FROM tMeetingRoom ORDER BY RoomID";
+            var result = await conn.QueryAsync<MeetingRoomModel>(sqlCmd);
+            return result;
+        }
+
+        // <summary>Get All Meeting Rooms Managers</summary>
+        public async Task<IEnumerable<Manager2RoomModel>> GetAllManagersAsync()
+        {
+            using IDbConnection conn = _databaseHelper.GetConnection();
+            string sqlCmd = @"SELECT managerName,RoomID,RoomName,ManagerID,Size
+                                FROM View_Manager2Room";
+            var result = await conn.QueryAsync<Manager2RoomModel>(sqlCmd);
+            return result;
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using MapsterMapper;
+﻿using AutoMapper;
 using MeetingRoomBooking.Repository.Interfaces;
-using MeetingRoomBooking.Service.Dtos;
+using MeetingRoomBooking.Repository.Models;
+using MeetingRoomBooking.Service.DTOs;
 using MeetingRoomBooking.Service.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -10,20 +11,27 @@ using System.Threading.Tasks;
 
 namespace MeetingRoomBooking.Service.Implements
 {
-    public class RoomService: IRoomService
+    public class RoomService : IRoomService
     {
-        private readonly IRoomRepository _roomRepository;
-        private readonly IMapper _mapper;
-
-        public RoomService(IRoomRepository roomRepository, IMapper mapper)
+        private IMapper _mapper;
+        private IRoomRepository _roomRepository;
+        public RoomService(IRoomRepository roomRepository,IMapper mapper) 
         {
-            _roomRepository = roomRepository;
             _mapper = mapper;
+            _roomRepository = roomRepository;
+        }
+        public async Task<IEnumerable<Manager2RoomDto>> GetAllManagersAsync()
+        {
+            var managers = await _roomRepository.GetAllManagersAsync();
+            var result = _mapper.Map<IEnumerable<Manager2RoomDto>>(managers);
+            return result;
         }
 
-        public async Task<IEnumerable<RoomDto>> GetAllAsync()
+        public async Task<IEnumerable<MeetingRoomDto>> GetAllRoomsAsync()
         {
-            return _mapper.Map<IEnumerable<RoomDto>>(await _roomRepository.GetAllAsync());
+            var rooms = await _roomRepository.GetAllRoomsAsync();
+            var result = _mapper.Map<IEnumerable<MeetingRoomDto>>(rooms);
+            return result;
         }
     }
 }

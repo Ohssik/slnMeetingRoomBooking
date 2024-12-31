@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
-using prjMeetingRoomBooking.Models;
-using prjMeetingRoomBooking.ViewModels;
+using MeetingRoomBooking.Service.DTOs;
 using System.Globalization;
+using MeetingRoomBooking.Service.Interfaces;
 
 namespace prjMeetingRoomBooking.Controllers
 {
     public class CheckController : Controller
     {
-        private readonly testContext _db;
-        public CheckController(testContext db)
+        private readonly IBookingService _service;
+        public CheckController(IBookingService service)
         {
-            _db = db;
+            _service = service;
         }
+        
         public IActionResult WeeklyView(string? date)
         {
             DateTime getDate = DateTime.Today;
@@ -39,6 +39,7 @@ namespace prjMeetingRoomBooking.Controllers
             ViewBag.Sat=firstDay.AddDays(6).ToString("yyyy-MM-dd");
             return View();
         }
+       
         public IActionResult DailyView(string? date)
         {
             DateTime getDate = DateTime.Today;
@@ -57,26 +58,23 @@ namespace prjMeetingRoomBooking.Controllers
             ViewBag.txtWeekDay=getDate.ToString("ddd");
             return View();
         }
+        
         public IActionResult MonthlyView()
         {
             return View();
         }
-        public IActionResult getBookingRecords(string data)
+        public async Task<IActionResult> getBookingRecords(string data)
         {
             if (string.IsNullOrEmpty(data))
                 return Json($"error: No Data!");
             try
             {
-                CPeriod period = JsonConvert.DeserializeObject<CPeriod>(data);
+                PeriodDto period = JsonConvert.DeserializeObject<PeriodDto>(data);
+
                 if (period == null)
                     return Json("");
-
-                DateTime getFirstDay = (DateTime)period.FirstDay;
-                DateTime lastDay = ((DateTime)period.LastDay).AddDays(1);
-
-                IEnumerable<TMeeingBooking> records = _db.TMeeingBookings.Where(r =>
-                    r.StartTime>=getFirstDay && r.EndTime<lastDay
-                ).Select(r => r).OrderBy(r => r.RoomId);
+               
+                IEnumerable<BookingDto> records = await _service.GetBookingsByPeriodAsync(period);
 
                 return Json(records);
             }

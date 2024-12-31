@@ -1,15 +1,19 @@
-﻿using MeetingRoomBooking.Repository.DataModels;
-using MeetingRoomBooking.Repository.ParameterModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MeetingRoomBooking.Repository.Models;
 
 namespace MeetingRoomBooking.Repository.Interfaces
 {
     public interface IUserRepository
     {
-        Task<TUser> GetUserByIdAsync(GetUserParameterModel parameter);
+        // <summary>
+        // Get User by User ID
+        // </summary>
+        /// <param name="userId">User ID</param>
+        Task<UserModel> GetByIdAsync(string userId);
+
+        // <summary>
+        // Check User is Existed
+        // </summary>
+        /// <param name="user">UserModel user</param>
+        Task<bool> IsExist(UserModel user);
     }
 }

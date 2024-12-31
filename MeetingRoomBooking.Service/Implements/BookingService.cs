@@ -1,43 +1,127 @@
-﻿using MapsterMapper;
+﻿using AutoMapper;
+using Evertrust.Core.Common.AspNetCore.Misc;
+using MeetingRoomBooking.Common.Models;
 using MeetingRoomBooking.Repository.Interfaces;
-using MeetingRoomBooking.Repository.ParameterModels;
-using MeetingRoomBooking.Service.Dtos;
+using MeetingRoomBooking.Repository.Models;
+using MeetingRoomBooking.Service.DTOs;
 using MeetingRoomBooking.Service.Interfaces;
-using MeetingRoomBooking.Service.ParameterDtos;
-using System.Reflection.Metadata;
 
 namespace MeetingRoomBooking.Service.Implements
 {
-    public class BookingService: IBookingService
+    public class BookingService : IBookingService
     {
-        private readonly IBookingRepository _bookingRepository;
-        private readonly IMapper _mapper;
+        private IRoomRepository _roomRepository;
+        private IBookingRepository _bookingRepository;
+        private IMapper _mapper;
 
-        public BookingService(IBookingRepository bookingRepository, IMapper mapper)
+        public BookingService(IRoomRepository roomRepository
+            ,IBookingRepository bookingRepository
+            ,IMapper mapper)
         {
+            _roomRepository = roomRepository;
             _bookingRepository = bookingRepository;
             _mapper = mapper;
         }
 
-        public async Task AddBookingAsync(AddBookingParameterDto parameter)
+        /// <summary>
+        ///   檢查欲預約時段是否已經被預約
+        /// </summary>        
+        public async Task<bool> IsBooked(CheckPeriodDto period)
         {
-            await _bookingRepository.AddBookingAsync(_mapper.Map<AddBookingParameterModel>(parameter));
+            DateOnly targetDate = period.TargetDay;
+            string[] startTime = period.StartTime.Split(':');
+            string[] endTime = period.EndTime.Split(':');
+            DateTime targetSt = new DateTime(targetDate.Year, targetDate.Month, targetDate.Day, Convert.ToInt32(startTime[0]), Convert.ToInt32(startTime[1]),0);
+            DateTime targetEt = new DateTime(targetDate.Year, targetDate.Month, targetDate.Day, Convert.ToInt32(endTime[0]), Convert.ToInt32(endTime[1]), 0);
+            int id = period.Id.GetValueOrDefault();
+
+            IEnumerable<MeetingBookingModel> records =  await _bookingRepository.GetBookingsForCheckAsync(targetDate, period.RoomId, id);
+                
+            if (records == null)
+            {
+                return false;
+            }
+
+            if(records.Any(b=>b.StartTime < targetEt && targetSt < b.EndTime))
+            {
+                return true;
+            }
+            
+            return false;
+
+            
         }
 
-        public async Task<BookingDto> GetBooking(GetBookingParameterDto parameter)
+        /// <summary>
+        ///   取得某時間區段的預約紀錄
+        /// </summary>
+        public async Task<IEnumerable<BookingDto>> GetBookingsByPeriodAsync(PeriodDto period)
         {
-            var result = await _bookingRepository.GetBookingById(_mapper.Map<GetBookingParameterModel>(parameter));
-            return _mapper.Map<BookingDto>(result);
+            DateTime periodStart = period.StartTime;
+            DateTime periodEnd = period.EndTime.AddDays(1);
+
+            IEnumerable<MeetingBookingModel> records = await _bookingRepository.GetAllAsync(periodStart, periodEnd);
+            IEnumerable<BookingDto> result = _mapper.Map<IEnumerable<BookingDto>>(records);
+            return result;
         }
 
-        public async Task ModifyBookingAsync(ModifyBookingParameterDto parameter)
+        /// <summary>
+        ///   回傳查詢時間的預約紀錄(API)
+        /// </summary>
+        public async Task<PagedOutputModel<BookingDto>> GetPagedResultAsync(BookingInputParamater booking)
         {
-            await _bookingRepository.ModifyBookingAsync(_mapper.Map<ModifyBookingParameterModel>(parameter));
+            SearchQueryCmdGenerator query = new SearchQueryCmdGenerator(booking);
+
+            query.AddSqlCmd();
+                        
+            int totalCount = await _bookingRepository.GetRecordCountsAsync(query);
+
+            query.AddSortBySqlCmd();
+
+            IEnumerable<BookingViewModel> bookings = await _bookingRepository.SearchAsync(query);
+            IEnumerable<BookingDto> result = _mapper.Map<IEnumerable<BookingDto>>(bookings);
+
+            return new PagedOutputModel<BookingDto>()
+            {
+                PageNumber = booking.PageIndex,
+                PageSize = booking.PageSize,
+                TotalRecords = totalCount,
+                Records = result
+            };
         }
 
-        public async Task RemoveBookingAsync(int id)
+        public async Task<IEnumerable<BookingDto>> GetAllAsync(DateTime periodStart, DateTime periodEnd)
         {
-            await _bookingRepository.RemoveBookingAsync(id);
+            var bookings = await _bookingRepository.GetAllAsync(periodStart, periodEnd);
+            var result = _mapper.Map<IEnumerable<BookingDto>>(bookings);
+            return result;
+        }
+
+        public async Task<BookingDto> GetByIdAsync(int id)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(id);
+            var result = _mapper.Map<BookingDto>(booking);
+            return result;
+        }
+
+        public async Task<IResult> CreateAsync(BookingDto booking)
+        {
+            var bookingModel=_mapper.Map<MeetingBookingModel>(booking);
+            IResult result = await _bookingRepository.CreateAsync(bookingModel);
+            return result;
+        }
+
+        public async Task<IResult> UpdateAsync(BookingDto booking)
+        {
+            var bookingModel = _mapper.Map<MeetingBookingModel>(booking);
+            IResult result = await _bookingRepository.UpdateAsync(bookingModel);
+            return result;
+        }
+
+        public async Task<IResult> DeleteAsync(int Id)
+        {            
+            IResult result = await _bookingRepository.DeleteAsync(Id);
+            return result;
         }
     }
 }

@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Infrastructure\Logging\CustomLogHelper.cs" />
+    <Compile Remove="Infrastructure\Logging\CustomLogHelperFactory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="coreprofiler" Version="1.1.4" />
+    <PackageReference Include="Evertrust.Core.Logging.Abstractions" Version="1.2.0" />
+    <PackageReference Include="Evertrust.Core.Logging.Exceptionless" Version="1.2.0" />
+    <PackageReference Include="Evertrust.Core.Logging.Exceptionless.DependencyInjection" Version="1.0.3" />
+    <PackageReference Include="Exceptionless" Version="5.0.0" />
+    <PackageReference Include="Exceptionless.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="FluentValidation" Version="11.5.2" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="FluentValidation.WebAPI" Version="8.6.1" />
+    <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="5.7.0" />
+    <PackageReference Include="MicroElements.Swashbuckle.FluentValidation.WebApi" Version="0.1.0" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Infrastructure\Logging\" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿@model prjMeetingRoomBooking.Parameters.GetUserParameter
+﻿@model prjMeetingRoomBooking.ViewModels.CUserViewModel
 
 @{
     ViewData["Title"] = "會議室預約系統";
@@ -64,6 +64,7 @@
             <div class="form-group btnDiv">
                 <input type="submit" id="btnSubmit" value="送出" class="btn btn-primary" />
                 <input type="reset" value="重設" class="btn btn-primary" />
+                <input type="button" id="btnDemo" value="demo" class="btn btn-primary" />
                 <span class="check text-danger"></span>
             </div>
         </form>
@@ -78,6 +79,12 @@
 @section Scripts {
     <script>
         $(function(){
+            $('#btnDemo').click(function(){
+                event.preventDefault();
+                $('[name=UserId]').val('Amy.Chen');
+                $('[name=UserPwd]').val('@@myCh1n1111');
+            });
+
             $('#btnSubmit').click(function(){
                 event.preventDefault();
                 $('span.check').text('');
@@ -92,11 +99,13 @@
                     $.ajax({
                         url: `@Url.Content("~/Booking/checkUserPwd")`,
                         type: 'post',
-                        data: JSON.stringify({
+                        data: {
+                            data: JSON.stringify({
                                 UserId: UserId,
                                 UserPwd: UserPwd
-                            }),                                               
-                        contentType: 'application/json',
+                            })
+                        },                        
+                        dataType: 'json',
                         success: function (result) {
                             //console.log(result);
                             if (`${result}`.indexOf('error') < 0) {

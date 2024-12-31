@@ -1,8 +1,8 @@
-﻿using MapsterMapper;
+﻿using AutoMapper;
 using MeetingRoomBooking.Repository.Interfaces;
-using MeetingRoomBooking.Service.Dtos;
+using MeetingRoomBooking.Repository.Models;
+using MeetingRoomBooking.Service.DTOs;
 using MeetingRoomBooking.Service.Interfaces;
-using MeetingRoomBooking.Service.ParameterDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,20 +11,55 @@ using System.Threading.Tasks;
 
 namespace MeetingRoomBooking.Service.Implements
 {
-    public class UserService: IUserService
+    /// <summary>
+    /// User Service class
+    /// </summary>
+    /// <seealso cref="MeetingRoomBooking.Service.Interfaces.IUserService" />
+    public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-
+        
+        private IMapper _mapper;       
+        private IUserRepository _userRepository;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserService"/> class.
+        /// </summary>
+        /// <param name="userRepository">The user repository.</param>
+        /// <param name="mapper">The mapper.</param>
         public UserService(IUserRepository userRepository, IMapper mapper)
         {
             _mapper = mapper;
             _userRepository = userRepository;
         }
 
-        public async Task<UserDto> GetUserByIdAsync(GetUserParameterDto parameter)
+        /// <summary>
+        /// 從User Id取得User data
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <returns></returns>
+        public async Task<UserDto> GetByIdAsync(string userId)
         {
-            throw new NotImplementedException();
+            var user = await _userRepository.GetByIdAsync(userId);
+
+            var result=_mapper.Map<UserDto>(user);
+
+            return result;  
+        }
+
+        /// <summary>
+        /// 檢查輸入的User帳密是否正確
+        /// </summary>
+        /// <param name="user">UserModel user</param>
+        /// <returns></returns>
+        public async Task<bool> IsExist(UserDto user)
+        {            
+            var userModel= _mapper.Map<UserModel>(user);
+
+            if(await _userRepository.IsExist(userModel))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

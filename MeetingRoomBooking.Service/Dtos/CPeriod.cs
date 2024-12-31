@@ -1,0 +1,12 @@
+﻿namespace MeetingRoomBooking.Service.DTOs
+{
+    public class CPeriod
+    {
+        public DateTime? FirstDay { get; set; }
+        public DateTime? LastDay { get; set; }
+        public int? STime { get; set; }
+        public int? ETime { get; set; }
+        public string? RoomId { get; set; }
+        public int? Id { get; set; }
+    }
+}

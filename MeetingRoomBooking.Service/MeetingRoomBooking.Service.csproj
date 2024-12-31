@@ -7,10 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
+    <PackageReference Include="coreprofiler" Version="1.1.4" />
+    <PackageReference Include="Evertrust.Core.Logging.Abstractions" Version="1.2.0" />
+    <PackageReference Include="Evertrust.Core.Logging.Exceptionless" Version="1.2.0" />
+    <PackageReference Include="Evertrust.Core.Logging.Exceptionless.DependencyInjection" Version="1.0.3" />
+    <PackageReference Include="Exceptionless" Version="5.0.0" />
+    <PackageReference Include="Exceptionless.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="MicroElements.Swashbuckle.FluentValidation" Version="5.7.0" />
+    <PackageReference Include="MicroElements.Swashbuckle.FluentValidation.WebApi" Version="0.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MeetingRoomBooking.Common\MeetingRoomBooking.Common.csproj" />
     <ProjectReference Include="..\MeetingRoomBooking.Repository\MeetingRoomBooking.Repository.csproj" />
   </ItemGroup>
 

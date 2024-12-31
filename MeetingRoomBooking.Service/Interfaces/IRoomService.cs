@@ -1,4 +1,5 @@
-﻿using MeetingRoomBooking.Service.Dtos;
+﻿using MeetingRoomBooking.Repository.Models;
+using MeetingRoomBooking.Service.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,12 @@ namespace MeetingRoomBooking.Service.Interfaces
 {
     public interface IRoomService
     {
-        Task<IEnumerable<RoomDto>> GetAllAsync();
+        // <summary>Get All Meeting Rooms Info</summary>
+        Task<IEnumerable<MeetingRoomDto>> GetAllRoomsAsync();
+
+        // <summary>Get All Meeting Rooms Managers</summary>
+        Task<IEnumerable<Manager2RoomDto>> GetAllManagersAsync();
+
+        
     }
 }

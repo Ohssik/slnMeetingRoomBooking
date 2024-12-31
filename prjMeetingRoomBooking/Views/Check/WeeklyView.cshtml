@@ -1,4 +1,4 @@
-﻿@model IEnumerable<prjMeetingRoomBooking.Models.TMeeingBooking>
+﻿@model IEnumerable<MeetingRoomBooking.Repository.Models.MeetingBookingModel>
 
 @{
     ViewData["Title"] = "會議室預約/週查詢";
@@ -74,8 +74,8 @@
                 type: 'post',
                 data: {                   
                         data:JSON.stringify({
-                            FirstDay:'@ViewBag.Sun',
-                            LastDay: '@ViewBag.Sat'
+                            PeriodStartTime: '@ViewBag.Sun',
+                            PeriodEndTime: '@ViewBag.Sat'
                         })
                 },
                 async: true,
