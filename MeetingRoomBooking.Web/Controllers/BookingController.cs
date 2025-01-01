@@ -116,22 +116,9 @@ namespace MeetingRoomBooking.Web.Controllers
                 EndTime = DateTime.TryParse($"{booking.endDate}T{booking.endT}:00", out var et) ? et : null,
             };
 
-            //TMeeingBooking room = new TMeeingBooking();
-            //room.RoomId=booking.RoomId;
-            //room.Subject=booking.Subject;
-            //room.BookingUserId=booking.BookingUserId;
-            //string st = $"{booking.startDate}T{booking.startT}:00";
-            //string et = $"{booking.endDate}T{booking.endT}:00";
-            //room.StartTime=Convert.ToDateTime(st);
-            //room.EndTime=Convert.ToDateTime(et);
-
-            //_db.TMeeingBookings.Add(room);
-
-
             try
             {
                 await _bookingService.AddBookingAsync(parameter);
-                //_db.SaveChanges();
                 return RedirectToAction("DailyView", "Check", new {date=$"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}"});
             }
             catch (Exception err)
@@ -144,7 +131,6 @@ namespace MeetingRoomBooking.Web.Controllers
         {
             try
             {
-                //var rooms = _db.TMeetingRooms.Select(r => new { r.RoomName, r.RoomId });
                 var rooms = await _roomService.GetAllAsync();
                 return Json(rooms.Select(r => new { r.RoomName, r.RoomId }));
             }
@@ -159,7 +145,6 @@ namespace MeetingRoomBooking.Web.Controllers
         {                        
             try
             {
-                //var managers = _db.ViewManager2Rooms.Select(m => m);
                 var managers = await _roomService.GetAllRoomInfoAsync();
                 return Json(managers);
             }
@@ -201,7 +186,6 @@ namespace MeetingRoomBooking.Web.Controllers
                 return RedirectToAction("DailyView", "Check");
             }
 
-            //var booking = _db.TMeeingBookings.FirstOrDefault(b => b.Id==(int)id);
             var booking = await _bookingService.GetBookingAsync(new GetBookingParameterDto
             {
                 Id = id.Value
@@ -260,7 +244,6 @@ namespace MeetingRoomBooking.Web.Controllers
             {
                 if (id.HasValue)
                 {
-                    //TMeeingBooking booking = _db.TMeeingBookings.FirstOrDefault(b => b.Id==(int)id);
                     await _bookingService.RemoveBookingAsync(id.Value);
                 }
 
@@ -276,7 +259,6 @@ namespace MeetingRoomBooking.Web.Controllers
         public async Task<IActionResult> CheckBookingTime([FromBody] GetBookingParameter period)
         {
             //檢查是否時間已被預約
-            //CPeriod period = JsonConvert.DeserializeObject<CPeriod>(data);
             if (period == null)
             {
                 return Json($"error: No Data!");
