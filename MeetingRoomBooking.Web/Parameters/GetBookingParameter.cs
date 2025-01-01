@@ -3,6 +3,7 @@
     public class GetBookingParameter
     {
         public int Id { get; set; }
+        public string RoomId { get; set; } = string.Empty;
         public DateTime? FirstDay { get; set; }
         public DateTime? LastDay { get; set; }
         public string StartTime { get; set; } = string.Empty;

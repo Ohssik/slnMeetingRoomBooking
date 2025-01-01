@@ -50,8 +50,8 @@ namespace MeetingRoomBooking.Service.Implements
             var id = parameter.Id;
 
             var records =  await _bookingRepository.GetBookingsForCheckAsync(_mapper.Map<GetBookingParameterModel>(parameter));
-           
-            if(records.Any(b=>b.StartTime < targetEt && targetSt < b.EndTime))
+
+            if (records.Any(b=>b.StartTime < targetEt && targetSt < b.EndTime))
             {
                 return true;
             }

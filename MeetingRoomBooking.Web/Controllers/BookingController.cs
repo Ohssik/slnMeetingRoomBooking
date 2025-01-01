@@ -241,6 +241,7 @@ namespace MeetingRoomBooking.Web.Controllers
                     Subject = booking.Subject ?? string.Empty,
                     StartTime = DateTime.TryParse(st, out var startTime)? startTime : null,
                     EndTime = DateTime.TryParse(et, out var endTime) ? endTime : null,
+                    Id = booking.Id,
                 });
 
                 return RedirectToAction("DailyView", "Check", new { date = $"{Convert.ToDateTime(st).ToString("yyyy-MM-dd")}" });
@@ -260,17 +261,7 @@ namespace MeetingRoomBooking.Web.Controllers
                 if (id.HasValue)
                 {
                     //TMeeingBooking booking = _db.TMeeingBookings.FirstOrDefault(b => b.Id==(int)id);
-                    var booking = await _bookingService.GetBookingAsync(new GetBookingParameterDto
-                    {
-                        Id = id.Value,
-                    });
-
-                    if (booking == null)
-                    {
-                        return RedirectToAction("DailyView", "Check");
-                    }
-
-                    st = booking.StartTime ?? DateTime.Today;
+                    await _bookingService.RemoveBookingAsync(id.Value);
                 }
 
                 return RedirectToAction("DailyView", "Check", new { date = $"{st:yyyy-MM-dd}" });

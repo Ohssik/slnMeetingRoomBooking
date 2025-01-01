@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MeetingRoomBooking.Repository.ParameterModels
 {
-    public class GetBookingParameterModel
+    public record class GetBookingParameterModel
     {
         public int Id { get; set; }
         public string RoomId { get; set; } = string.Empty;

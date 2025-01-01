@@ -173,13 +173,17 @@
         }
 
         .bookingTable{
-            width: 95vw; /* 設定 div 的寬度為 100vw */
+            width: 100%; /* 設定 div 的寬度為 100vw */
             overflow-x: auto; /* 如果內容超出範圍，顯示水平滾動條 */
         }
 
         .bookingTable>table{
                 width: 100%; /* 讓表格的寬度自動調整，可能會超過視口 */
                 border-collapse: collapse;
+        }
+
+        .bookingTable tr:hover {
+            background-color: #E0FFE0;
         }
     </style>
 }
@@ -194,7 +198,7 @@
     <input type="button" id="btnLastDay" value="前一天" class="btn btn-success" />
         <input type="button" id="btnNextDay" value="後一天" class="btn btn-success" />
 </div>
-<div class="bookingTable">
+<div class="bookingTable" style="width: 100%;overflow-x: auto;">
     <table class="table table-bordered">
         <thead>
             <tr>
